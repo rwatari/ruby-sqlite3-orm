@@ -39,4 +39,8 @@ class Question
     raise "#{self} not yet in DB" unless id
     Reply.find_by_question_id(self.id)
   end
+
+  def followers
+    QuestionFollow.followers_for_question_id(self.id)
+  end
 end
