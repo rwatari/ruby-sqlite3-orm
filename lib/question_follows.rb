@@ -1,17 +1,11 @@
 require_relative 'questions_database'
 
-class QuestionFollow
+class QuestionFollow < Modelbase
   attr_accessor :user_id, :question_id
   attr_reader :id
 
-  def self.find_by_id(id)
-    questionf = QuestionsDatabase.instance.execute(<<-SQL, id)
-      SELECT *
-      FROM question_follows
-      WHERE id = ?
-    SQL
-
-    questionf.empty? ? nil : QuestionFollow.new(questionf.first)
+  def self.table_name
+    "question_follows"
   end
 
   def self.followers_for_question_id(question_id)

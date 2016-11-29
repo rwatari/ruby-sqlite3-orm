@@ -1,6 +1,6 @@
 require_relative 'questions_database'
 
-class Reply
+class Reply < Modelbase
   attr_accessor :user_id, :question_id, :parent_id, :body
   attr_reader :id
 
@@ -24,14 +24,8 @@ class Reply
     replies.map {|reply| Reply.new(reply)}
   end
 
-  def self.find_by_id(id)
-    reply = QuestionsDatabase.instance.execute(<<-SQL, id)
-      SELECT *
-      FROM replies
-      WHERE id = ?
-    SQL
-
-    reply.empty? ? nil : Reply.new(reply.first)
+  def self.table_name
+    "replies"
   end
 
   def initialize(options)
@@ -63,24 +57,5 @@ class Reply
     SQL
 
     replies.map {|reply| Reply.new(reply)}
-  end
-
-  def save
-    if id
-      QuestionsDatabase.instance.execute(
-        <<-SQL, user_id, question_id, parent_id, body, id)
-        UPDATE replies
-        SET user_id = ?, question_id = ?, parent_id = ?, body = ?
-        WHERE id = ?
-      SQL
-    else
-      QuestionsDatabase.instance.execute(
-        <<-SQL, user_id, question_id, parent_id, body)
-        INSERT INTO replies (user_id, question_id, parent_id, body)
-        VALUES (?, ?, ?, ?)
-      SQL
-
-      @id = QuestionsDatabase.instance.last_insert_row_id
-    end
   end
 end

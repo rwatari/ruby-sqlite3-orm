@@ -1,4 +1,5 @@
 require_relative 'questions_database'
+require_relative 'modelbase'
 require_relative 'users'
 require_relative 'questions'
 require_relative 'replies'
