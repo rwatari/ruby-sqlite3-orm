@@ -30,6 +30,23 @@ class User
     @lname = options['lname']
   end
 
+  def save
+    if id
+      QuestionsDatabase.instance.execute(<<-SQL, fname, lname, id)
+        UPDATE users
+        SET fname = ?, lname = ?
+        WHERE id = ?
+      SQL
+    else
+      QuestionsDatabase.instance.execute(<<-SQL, fname, lname)
+        INSERT INTO users (fname, lname)
+        VALUES (?, ?)
+      SQL
+
+      @id = QuestionsDatabase.instance.last_insert_row_id
+    end
+  end
+
   def authored_questions
     raise "#{self} not yet in DB" unless id
     Question.find_by_author_id(self.id)
@@ -42,5 +59,29 @@ class User
 
   def followed_questions
     QuestionFollow.followed_questions_for_user_id(self.id)
+  end
+
+  def liked_questions
+    QuestionLike.liked_questions_for_user_id(self.id)
+  end
+
+  def average_karma
+    arr = QuestionsDatabase.instance.execute(<<-SQL, self.id)
+      SELECT
+        CAST(num_likes AS FLOAT) / num_questions AS karma
+      FROM (
+        SELECT
+          COUNT(DISTINCT questions.id) AS num_questions,
+          COUNT(question_likes.id) AS num_likes
+        FROM
+          questions
+        LEFT JOIN
+          question_likes ON question_likes.question_id = questions.id
+        WHERE
+          questions.author_id = ?
+        )
+    SQL
+
+    arr.first['karma'] || 0
   end
 end

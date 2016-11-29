@@ -1,9 +1,12 @@
+DROP TABLE if EXISTS users;
 
 CREATE TABLE users (
   id INTEGER PRIMARY KEY,
   fname TEXT NOT NULL,
   lname TEXT NOT NULL
 );
+
+DROP TABLE if EXISTS questions;
 
 CREATE TABLE questions (
   id INTEGER PRIMARY KEY,
@@ -14,6 +17,8 @@ CREATE TABLE questions (
   FOREIGN KEY (author_id) REFERENCES users(id)
 );
 
+DROP TABLE if EXISTS question_follows;
+
 CREATE TABLE question_follows (
   id INTEGER PRIMARY KEY,
   user_id INTEGER NOT NULL,
@@ -22,6 +27,8 @@ CREATE TABLE question_follows (
   FOREIGN KEY (user_id) REFERENCES users(id),
   FOREIGN KEY (question_id) REFERENCES questions(id)
 );
+
+DROP TABLE if EXISTS replies;
 
 CREATE TABLE replies (
   id INTEGER PRIMARY KEY,
@@ -34,6 +41,8 @@ CREATE TABLE replies (
   FOREIGN KEY (question_id) REFERENCES questions(id),
   FOREIGN KEY (parent_id) REFERENCES replies(id)
 );
+
+DROP TABLE if EXISTS question_likes;
 
 CREATE TABLE question_likes (
   id INTEGER PRIMARY KEY,
