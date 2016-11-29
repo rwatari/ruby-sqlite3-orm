@@ -32,8 +32,11 @@ class Question
   end
 
   def author
+    User.find_by_id(self.author_id)
   end
 
   def replies
+    raise "#{self} not yet in DB" unless id
+    Reply.find_by_question_id(self.id)
   end
 end

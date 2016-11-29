@@ -40,5 +40,4 @@ class User
     Reply.find_by_user_id(self.id)
   end
 
-
 end
