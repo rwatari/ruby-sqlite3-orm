@@ -22,13 +22,41 @@ class Modelbase
   end
 
   def self.where(options)
-    results = QuestionsDatabase.instance.execute(<<-SQL, options)
-      SELECT *
-      FROM #{self.table_name}
-      WHERE #{generate_where_str(options)}
-    SQL
+    if options.is_a? String
+      results = QuestionsDatabase.instance.execute(<<-SQL)
+        SELECT *
+        FROM #{self.table_name}
+        WHERE #{options}
+      SQL
+    else
+      results = QuestionsDatabase.instance.execute(<<-SQL, options)
+        SELECT *
+        FROM #{self.table_name}
+        WHERE #{generate_where_str(options)}
+      SQL
+    end
 
     results.map {|result| self.new(result)}
+  end
+
+  def self.method_missing(method_name, *args)
+    method_name = method_name.to_s
+
+    return super unless method_name.start_with?("find_by_")
+
+    attributes_string = method_name[("find_by_".length)..-1]
+    attribute_names = attributes_string.split("_and_")
+
+    unless attribute_names.length == args.length
+      raise "unexpected # of arguments"
+    end
+
+    search_conditions = {}
+    attribute_names.each_index do |i|
+      search_conditions[attribute_names[i].to_sym] = args[i]
+    end
+
+    self.where(search_conditions)
   end
 
   def save
